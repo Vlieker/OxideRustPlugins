@@ -72,7 +72,6 @@ namespace Oxide.Plugins
 
         private void Init()
         {
-            LoadDefaultMessages();
             LoadVariables();
             permission.RegisterPermission(cooldownPerm, this);
         }
@@ -88,7 +87,7 @@ namespace Oxide.Plugins
                     float difference = (lastRun[player.userID] + timeCooldown) - UnityEngine.Time.time;
                     float finaldifference = Mathf.Round(difference);
                     entity.Kill();
-                    Player.Message(player, GetLang("cooldownActive", "0"), null, messageIcon, finaldifference);
+                    Player.Message(player, GetLang("cooldownActive", player.UserIDString), null, messageIcon, finaldifference);
                     if (refundSignal)
                     {
                         Item item = ItemManager.CreateByName("supply.signal", 1);
@@ -106,7 +105,7 @@ namespace Oxide.Plugins
                 {
                     signalCooldown.Remove(player.userID);
                     lastRun.Remove(player.userID);
-                    Player.Message(player, GetLang("cooldownOver", "0"), null, messageIcon);
+                    Player.Message(player, GetLang("cooldownOver", player.UserIDString), null, messageIcon);
                 });
                 Puts("Signal cooldown started on " + player.displayName);
                 return;
@@ -117,19 +116,26 @@ namespace Oxide.Plugins
         [ConsoleCommand("signalreset")]
         private void ResetTimeCMD(ConsoleSystem.Arg args)
         {
-            BasePlayer player = args.Player();
-            if(player.net.connection.authLevel >= authLevel)
+            if(args.Player() == null)
             {
-                Reset(player);
+                Reset();
+                return;
             }
-            Player.Message(player, GetLang("noPermission", "0"), null, messageIcon);
+
+            BasePlayer player = args.Player();
+            if(player.net.connection.authLevel < authLevel)
+            {
+                Player.Message(player, GetLang("noPermission", player.UserIDString), null, messageIcon);
+                return;
+            }
+            Player.Message(player, GetLang("manualReset", player.UserIDString), null, messageIcon);
+            Reset();
         }
 
-        void Reset(BasePlayer player)
+        void Reset()
         {
             signalCooldown.Clear();
             lastRun.Clear();
-            Player.Message(player, GetLang("manualReset", "0"), null, messageIcon);
             Puts("All cooldowns have been manually reset.");
         }
     }

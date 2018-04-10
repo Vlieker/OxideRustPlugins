@@ -8,27 +8,41 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("PlayFX", "Vliek", "1.0.0")]
-    [Description("Play a prefab effect on any player.")]
+    [Info("PlayFX", "Vliek", "1.0.0", ResourceId = 2810)]
+    [Description("Play any Rust fx/effect on any specified player.")]
 
     class PlayFX : RustPlugin
     {
-        string usePermission = "playfx.playeffect";
+        string usagePerm = "playfx.playeffect";
+
+        string GetLang(string msg, string userID) => lang.GetMessage(msg, this, userID);
+
+        protected override void LoadDefaultMessages()
+        {
+            lang.RegisterMessages(new Dictionary<string, string>
+            {
+                ["usageExample"] = "Usage example: /playfx 76561198238497190 assets/bundled/prefabs/fx/gestures/drink_vomit.prefab",
+                ["noPlayerFound"] = "No player matching this SteamID",
+                ["noPermission"] = "You don't have the required permission to play effects on players."
+            }, this);
+        }
 
         void Init()
         {
-            permission.RegisterPermission(usePermission, this);
+            permission.RegisterPermission(usagePerm, this);
         }
 
 
-        [ConsoleCommand("playfx")]
-        void CmdPlayFX(ConsoleSystem.Arg arg)
+        [Command("playfx")]
+        void CmdPlayFX(BasePlayer player, string command, string[] args)
         {
-                if (arg.Args.Length == 2)
+            if (permission.UserHasPermission(usagePerm, player.UserIDString))
+            {
+                if (args.Length == 2)
                 {
                     ulong effectTarget;
-                    string argTarget = arg.Args[0];
-                    string effect = arg.Args[1];
+                    string argTarget = args[0];
+                    string effect = args[1];
                     try
                     {
                         effectTarget = Convert.ToUInt64(argTarget);
@@ -36,21 +50,23 @@ namespace Oxide.Plugins
                     catch (FormatException e)
                     {
                         Puts(e.Message);
-                        Puts("Usage example: playfx 76561198238497190 assets/bundled/prefabs/fx/gestures/cameratakescreenshot.prefab");
+                        Player.Reply(player, GetLang("usageExample", player.UserIDString));
                         return;
                     }
                     BasePlayer finaltarget = BasePlayer.FindByID(effectTarget);
                     if (finaltarget == null)
                     {
-                        Puts("No users matching that SteamID");
+                        Player.Reply(player, GetLang("noPlayerFound", player.UserIDString));
                         return;
                     }
                     Effect.server.Run(effect, finaltarget.transform.position, Vector3.zero, null, false);
                     Puts("Ran on " + finaltarget.displayName);
                     return;
                 }
-                Puts("Usage example: playfx 76561198238497190 assets/bundled/prefabs/fx/gestures/cameratakescreenshot.prefab");
+                Player.Reply(player, GetLang("usageExample", player.UserIDString));
                 return;
+            }
+            Player.Reply(player, GetLang("noPermission", player.UserIDString));
         }
     }
 }
