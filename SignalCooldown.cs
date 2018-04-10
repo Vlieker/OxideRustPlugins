@@ -5,7 +5,7 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Signal Cooldown", "Vliek", "1.0.0", ResourceId = 2805)]
+    [Info("Signal Cooldown", "Vliek", "1.0.1", ResourceId = 2805)]
     [Description("Add a cooldown to supply signals to avoid that players are going to leave from rage.")]
     class SignalCooldown : RustPlugin
     {
