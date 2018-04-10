@@ -8,12 +8,12 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("PlayFX", "Vliek", "1.0.0", ResourceId = 2810)]
+    [Info("PlayFX", "Vliek", "1.0.1", ResourceId = 2810)]
     [Description("Play any Rust fx/effect on any specified player.")]
 
     class PlayFX : RustPlugin
     {
-        string usagePerm = "playfx.playeffect";
+        string usagePerm = "playfx.use";
 
         string GetLang(string msg, string userID) => lang.GetMessage(msg, this, userID);
 
