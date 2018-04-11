@@ -65,8 +65,8 @@ namespace Oxide.Plugins
             {
                 ["cooldownActive"] = "<color=#b7b7b7>Supplysignal cooldown active, wait {0} seconds till you can throw a signal again.</color>",
                 ["cooldownOver"] = "<color=#b7b7b7>You are able to throw a supplysignal again.</color>",
-                ["noPermission"] = "<color=#b7b7b7>You don't have the required permission to run this command.</color>",
-                ["manualReset"] = "<color=#b7b7b7>You don't have the required permission to run this command.</color>"
+                ["noPermission"] = "<color=#b7b7b7>You don't have the required auth level to run this command.</color>",
+                ["manualReset"] = "<color=#b7b7b7>All supplysignal cooldowns have been manually reset.</color>"
             }, this);
         }
 
@@ -113,17 +113,10 @@ namespace Oxide.Plugins
             return;
         }
 
-        [ConsoleCommand("signalreset")]
-        private void ResetTimeCMD(ConsoleSystem.Arg args)
+        [ChatCommand("signalreset")]
+        private void ResetTimeCMD(BasePlayer player, string command, string[] args)
         {
-            if(args.Player() == null)
-            {
-                Reset();
-                return;
-            }
-
-            BasePlayer player = args.Player();
-            if(player.net.connection.authLevel < authLevel)
+            if (player.Connection.authLevel < authLevel)
             {
                 Player.Message(player, GetLang("noPermission", player.UserIDString), null, messageIcon);
                 return;
