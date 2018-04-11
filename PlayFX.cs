@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.Collections.Generic;
 using Oxide.Core;
 using UnityEngine;
@@ -30,10 +30,10 @@ namespace Oxide.Plugins
         }
 
 
-        [Command("playfx")]
+        [ChatCommand("playfx")]
         void CmdPlayFX(BasePlayer player, string command, string[] args)
         {
-            if (permission.UserHasPermission(usagePerm, player.UserIDString))
+            if (permission.UserHasPermission(player.UserIDString, usagePerm))
             {
                 if (args.Length == 2)
                 {
