@@ -5,7 +5,7 @@ using Oxide.Core;
 
 namespace Oxide.Plugins
 {
-    [Info("Signal Cooldown", "Vliek", "1.0.1", ResourceId = 2805)]
+    [Info("Signal Cooldown", "Vliek", "1.0.2", ResourceId = 2805)]
     [Description("Add a cooldown to supply signals to avoid that players are going to leave from rage.")]
     class SignalCooldown : RustPlugin
     {
@@ -75,6 +75,8 @@ namespace Oxide.Plugins
             LoadVariables();
             permission.RegisterPermission(cooldownPerm, this);
         }
+
+        private void OnExplosiveDropped(BasePlayer player, BaseEntity entity) => OnExplosiveThrown(player, entity);
 
         private void OnExplosiveThrown(BasePlayer player, BaseEntity entity)
         {
