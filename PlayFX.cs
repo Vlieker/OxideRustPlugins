@@ -4,14 +4,50 @@ using UnityEngine;
 
 namespace Oxide.Plugins
 {
-    [Info("PlayFX", "Vliek", "1.0.2", ResourceId = 2810)]
+    [Info("PlayFX", "Vliek", "1.0.3", ResourceId = 2810)]
     [Description("Play any Rust fx/effect on any specified player.")]
 
     class PlayFX : RustPlugin
     {
         string usagePerm = "playfx.use";
+        bool Changed;
+        bool localEffect;
 
         string GetLang(string msg, string userID) => lang.GetMessage(msg, this, userID);
+
+        protected override void LoadDefaultConfig()
+        {
+            Puts("Creating a new config file.");
+            Config.Clear();
+            LoadVariables();
+        }
+        private void LoadVariables()
+        {
+            localEffect = Convert.ToBoolean(GetConfig("Settings", "Play effect locally", true));
+
+            if (!Changed) return;
+            SaveConfig();
+            Changed = false;
+        }
+
+        object GetConfig(string menu, string datavalue, object defaultValue)
+        {
+            var data = Config[menu] as Dictionary<string, object>;
+            if (data == null)
+            {
+                data = new Dictionary<string, object>();
+                Config[menu] = data;
+                Changed = true;
+            }
+            object value;
+            if (!data.TryGetValue(datavalue, out value))
+            {
+                value = defaultValue;
+                data[datavalue] = value;
+                Changed = true;
+            }
+            return value;
+        }
 
         protected override void LoadDefaultMessages()
         {
@@ -85,7 +121,14 @@ namespace Oxide.Plugins
                         return;
                     }
                     var finaleffect = new Effect(effect, finaltarget, 0, Vector3.zero, Vector3.forward);
-                    EffectNetwork.Send(finaleffect, finaltarget.net.connection);
+                    if(localEffect)
+                    {
+                        EffectNetwork.Send(finaleffect, finaltarget.net.connection);
+                    }
+                    else
+                    {
+                        EffectNetwork.Send(finaleffect);
+                    }                  
                     Puts("Effect ran on " + finaltarget.displayName);
                     return;
                 }
@@ -109,7 +152,14 @@ namespace Oxide.Plugins
                         return;
                     }
                     var finaleffect = new Effect(effect, finaltarget, 0, Vector3.zero, Vector3.forward);
-                    EffectNetwork.Send(finaleffect, finaltarget.net.connection);
+                    if (localEffect)
+                    {
+                        EffectNetwork.Send(finaleffect, finaltarget.net.connection);
+                    }
+                    else
+                    {
+                        EffectNetwork.Send(finaleffect);
+                    }
                     Player.Reply(player, "Effect ran on " + finaltarget.displayName);
                     return;
                 }
